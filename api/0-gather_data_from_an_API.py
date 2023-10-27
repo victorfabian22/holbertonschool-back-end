@@ -1,34 +1,23 @@
 #!/usr/bin/python3
-"""Gather data from an API"""
-import requests
-import sys
+"""returns information about his/her TODO list progress"""
 
+import requests
+from requests import get
+from sys import argv
 
 if __name__ == '__main__':
-    # URL de la REST API
-    BASE_URL = 'https://jsonplaceholder.typicode.com'
+    source = 'https://jsonplaceholder.typicode.com'
+    todoall = source + "/user/{}/todos".format(argv[1])
+    names = source + "/users/{}".format(argv[1])
+    todores = get(todoall).json()
+    nameres = get(names).json()
 
-    # ID de empleados
-    empoleye = int(sys.argv[1])
-
-    # Hacemos la solicitud GET al punto final '/todos' para obtener la lista
-    # TODO para el empleado dado
-    response = requests.get(f'{BASE_URL}/todos?userId={empoleye}')
-
-    # Analizamos la respuesta JSON y contamos la cantidad de tareas completadas
-    todos = response.json()
-    tasks_completed = [todo for todo in todos if todo['completed']]
-    num_tasks_completed = len(tasks_completed)
-    num_tasks = len(todos)
-
-    # Obtenemos el nombre del empleado del punto final '/users'
-    user_response = requests.get(f'{BASE_URL}/users/{empoleye}')
-    user_data = user_response.json()
-    empoleye_name = user_data['name']
-
-    # Imprimimos la información de la lista
-    print(f"Employee {empoleye_name} is donde with tasks \
-           ({num_tasks_completed}/{num_tasks}): ")
-
-    for todo in tasks_completed:
-        print(f'	 {todo["title"]}')
+    todonum = len(todores)
+    todocomp = len([todo for todo in todores
+                    if todo.get("completed")])
+    name = nameres.get("name")
+    print("Employee {} is done with tasks({}/{}):"
+          .format(name, todocomp, todonum))
+    for todo in todores:
+        if (todo.get("completed")):
+            print("\t {}".format(todo.get("title")))
