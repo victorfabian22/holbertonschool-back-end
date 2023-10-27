@@ -1,26 +1,37 @@
 #!/usr/bin/python3
-"""Export to JSON"""
-import json
-import requests
+"""
+Data in JSON format task 3
+"""
+
 from sys import argv
+from requests import get
+from json import dump
+
+url_base = 'https://jsonplaceholder.typicode.com/users/'
+
+
+def dict_of_the_dict():
+    """s"""
+    users = get(url_base).json()
+    retrieve_json = dict()
+
+    for user in users:
+        usr_id = user['id']
+        item_data = []
+        task_users = get(url_base + str(usr_id) + '/todos/').json()
+
+        for todo in task_users:
+            item_dict = {
+                'task': todo['title'],
+                'completed': todo['completed'],
+                'username': user['username']
+            }
+            item_data.append(item_dict)
+        retrieve_json[usr_id] = item_data
+
+    with open('todo_all_employees.json', 'w', encoding='utf-8') as file_json:
+        dump(retrieve_json, file_json)
 
 
 if __name__ == '__main__':
-    BASE_URL = 'https://jsonplaceholder.typicode.com/users/'
-    users = requests.get(BASE_URL)
-    dic = {}
-
-    for i in users.json():
-        url = f"https://jsonplaceholder.typicode.com/users/{i.get('id')}/todos"
-        todo = requests.get(url)
-        lis = []
-
-        for q in todo.json():
-            new = {'username': f"{i.get('username')}",
-                   'task': f"{q.get('title')}",
-                   'completed': q.get('completed')}
-            lis.append(new)
-        dic[f"{i.get('id')}"] = lis
-
-    with open("todo_all_employees.json", 'w') as file:
-        json.dump(dic, file)
+    dict_of_the_dict()
