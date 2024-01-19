@@ -1,44 +1,24 @@
 #!/usr/bin/python3
-"""
-Script that use
-https://jsonplaceholder.typicode.com/guide/
-to get information
-"""
+"""Python script that, using this REST API, for a given employee ID,
+returns information about his/her TODO list progress."""
 import requests
-from sys import argv, stderr, exit
-
-
-def main():
-    if len(argv) < 2:
-        print("Usage: {} ID".format(argv[0]))
-        exit(1)
-
-    employee_id = int(argv[1])
-    url = f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}"
-    response = requests.get(url)
-    url_name = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
-    response_name = requests.get(url_name)
-
-    if response.status_code == 200:
-        todos = response.json()
-        total_tasks = len(todos)
-        completed_tasks = [todo for todo in todos if todo['completed']]
-        num_completed_tasks = len(completed_tasks)
-    else:
-        print("Error fetching TODO list")
-
-    if response_name.status_code == 200:
-        employee_data = response_name.json()
-        if "name" in employee_data:
-            employee_name = employee_data.get("name")
-    else:
-        print("Error fetching employee name")
-
-    print("Employee {} is done with tasks({}/{}):"
-          .format(employee_name, num_completed_tasks, total_tasks))
-    for task in completed_tasks:
-        print("\t {}".format(task.get("title")))
+from sys import argv
 
 
 if __name__ == "__main__":
-    main()
+    user = f"https://jsonplaceholder.typicode.com/users/{argv[1]}"
+    todo = f"https://jsonplaceholder.typicode.com/users/{argv[1]}/todos"
+    us = requests.get(user)
+    to = requests.get(todo)
+    tr = []
+    for dicc in to.json():
+        for k, v in dicc.items():
+            if k == 'completed':
+                if v is True:
+                    tr.append(dicc)
+    print(f"Employee {us.json().get('name')} is \
+done with tasks({(len(tr))}/{(len(to.json()))}):")
+    for tittle in tr:
+        for k, v in tittle.items():
+            if k == 'title':
+                print(f'	 {v}')
